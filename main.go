@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/fegmm/ChurchLife-Communicator/bridges"
 	"github.com/fegmm/ChurchLife-Communicator/events"
-	"github.com/spf13/viper"
+	"github.com/kelseyhightower/envconfig"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -42,17 +41,10 @@ func getEventService(configuration Configuration) events.EventServiceClient {
 }
 
 func loadConfiguration() Configuration {
-	replacer := strings.NewReplacer(".", "_")
-	viper.SetEnvKeyReplacer(replacer)
-	viper.AutomaticEnv()
 	var configuration Configuration
-	err := viper.ReadInConfig()
+	err := envconfig.Process("myapp", &configuration)
 	if err != nil {
 		panic(fmt.Sprintf("Settings could not be read: %v", err))
-	}
-	err = viper.Unmarshal(&configuration)
-	if err != nil {
-		panic(fmt.Sprintf("Settings could not be cast to Configuration struct: %v", err))
 	}
 	return configuration
 }
